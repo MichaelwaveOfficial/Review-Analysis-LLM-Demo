@@ -1,0 +1,8 @@
+user_reviews = [
+    'The internet speed in the Barton Seagrave area of Kettering is absolutely atrocious lately. Cannot even stream a basic video without it buffering constantly. So frustrating!',
+    'Just had a really pleasant experience with one of your engineers who came to fix my phone line in Burton Latimer. He was on time, polite, and got the job done quickly. Top marks!',
+    'Is anyone else in Kettering having issues with their mobile signal today? Seems to be completely dead in the town centre.',
+    'My contract is up for renewal next month, and honestly, the broadband service has been just okay. Nothing to rave about, but no major complaints either.',
+    'Absolutely disgusted with the billing department! I was charged twice for a service I cancelled three weeks ago. Tried calling but was on hold for over half an hour. Unacceptable!',
+    'Loving the new smart TV package I signed up for! The picture quality is fantastic, and it was really easy to set up'
+]

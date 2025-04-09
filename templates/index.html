@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Envera Demo | Michael King</title>
+</head>
+<body>
+    <h2>Enter feedback:</h2>
+    <form method="POST" action="/">
+        <textarea name="user_feedback" rows="5" cols="20"></textarea>
+        <button type="submit">Submit</button>
+    </form>
+    {% if user_sentiment %}
+        <h3>Model Output: {{user_sentiment}}.</h3>
+    {% endif %}
+</body>
+</html>
