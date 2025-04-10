@@ -3,9 +3,9 @@
     Super light-weight Flask webserver.
 '''
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from llm import initalise_client, fetch_chatbot_response
-from gdb import insert_review
+from gdb import insert_review, fetch_data, fetch_recent_reviews
 from system_prompt import SYSTEM_PROMPT
 
 import json 
@@ -19,6 +19,9 @@ client, model_name = initalise_client()
 def index():
 
     ''' Render main page to query LLM. '''
+
+    # Fetch most recent reviews from the gdb.
+    recent_reviews = fetch_recent_reviews(5)
 
     # Initialise variable to store user review into memory. 
     user_sentiment = None
@@ -50,6 +53,8 @@ def index():
             # Convert str output into JSON.
             sentiment_data = json.loads(user_sentiment)
 
+            ### okay -> print(sentiment_data)
+
             if sentiment_data:
                 # Insert model output into graph database. 
                 insert_review(sentiment_data)
@@ -57,8 +62,23 @@ def index():
     # Render webpage. 
     return render_template(
         'index.html',
-        user_sentiment=user_sentiment
+        user_sentiment=user_sentiment,
+        recent_reviews=recent_reviews
     ) 
+
+
+@app.route('/gdb_data')
+def fetch_gdb_data():
+
+    # Query gdb to fetch all nodes and edges.
+    nodes, edges = fetch_data()
+
+    # Send results as Json response. 
+    return jsonify({
+        'nodes' : list(nodes.values()),
+        'edges': edges 
+    })
+   
 
 
 def main():

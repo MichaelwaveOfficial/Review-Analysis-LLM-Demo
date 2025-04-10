@@ -3,16 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Envera Demo | Michael King</title>
+    
+    <!-- Import vis library to render graph db. -->
+    <script src="https://unpkg.com/vis-network@9.1.2/standalone/umd/vis-network.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css')}}">
+
 </head>
 <body>
-    <h2>Enter feedback:</h2>
-    <form method="POST" action="/">
-        <textarea name="user_feedback" rows="5" cols="20"></textarea>
-        <button type="submit">Submit</button>
-    </form>
-    {% if user_sentiment %}
-        <h3>Model Output: {{user_sentiment}}.</h3>
-    {% endif %}
+
+    <div class="user-input">
+        <h2>Enter feedback/review:</h2>
+        <form method="POST" action="/">
+            <textarea name="user_feedback" rows="5" cols="20"></textarea>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <div class="gdb-container">
+
+        <h2>Graph Model:</h2>
+        <!-- Graph db container. -->
+        <div id="gdb"></div>
+
+    </div>
+
+    <div class="review-list">
+
+        <h2>Recent Reviews:</h2>
+
+        {% if recent_reviews %}
+            
+            <div class="review-descriptors">
+                <h2><strong>Review:</strong></h2>
+                <h2><strong>Sentiment:</strong></h2>
+                <h2><strong>Timestamp:</strong></h2>
+            </div>
+
+            {% for review in recent_reviews %}
+                <div class="review-item">
+                    <p>{{ review.review }}</p>
+                    <p>{{ review.sentiment }}</p>
+                    <p>{{ review.timestamp }}</p>
+                </div>
+            {% endfor %}
+
+        {% endif %}
+ 
+        {% if user_sentiment %}
+            <h3>Model Output: {{user_sentiment}}.</h3><!-- lOOP OVER SENTIMENTS ++ ARTEFACTS.-->
+        {% endif %}
+
+    </div>
+
+    <!-- JS script to fetch graph db. ++ apply styling. -->
+    <script src="{{ url_for('static', filename='dataRetrieval.js') }}"></script>
 </body>
 </html>

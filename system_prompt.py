@@ -24,11 +24,10 @@ Examples:
         'entity: '...',
         'category: '...'
     ]',
-    // ...append more entities if identified. If none, omit this field or set it to "N/A".
+    // ...append more entities if identified. If none, fill this field with a "default" value.
     'aspects' : '[
         'aspect' : '...',
         'category' : '...'
-    ]', ...append more aspects if identified. If none, omit this field or set it to "N/A".
-}
+    ]', ...append more aspects if identified. f none, fill this field with a "default" value.
 ````
 """
