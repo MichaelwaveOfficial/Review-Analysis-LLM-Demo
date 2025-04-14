@@ -21,7 +21,12 @@
 
     <div class="gdb-container">
 
-        <h2>Graph Model:</h2>
+        <div class="gdb-header">
+            <h2>Graph Model:</h2>
+            <button id="view_all" onclick="loadGdb('view_all')">View All</button>
+            <button id="review_aspects" onclick="loadGdb('review_aspects')">Review Aspects</button>
+            <button id="review_entities" onclick="loadGdb('review_entities')">Review Entities</button>
+        </div>
         <!-- Graph db container. -->
         <div id="gdb"></div>
 

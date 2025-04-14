@@ -84,6 +84,12 @@ button {
     border-radius: 8px;
 }
 
+.gdb-header {
+    display: flex;
+    align-items: center;
+    gap:  10px;
+}
+
 h2, h3 {
     text-align: center;
 }

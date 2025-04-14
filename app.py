@@ -3,9 +3,9 @@
     Super light-weight Flask webserver.
 '''
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify,redirect, url_for
 from llm import initalise_client, fetch_chatbot_response
-from gdb import insert_review, fetch_data, fetch_recent_reviews
+from gdb import insert_review, fetch_data, fetch_recent_reviews, fetch_review_aspects, fetch_review_entities
 from system_prompt import SYSTEM_PROMPT
 
 import json 
@@ -50,14 +50,21 @@ def index():
                 system_prompt=SYSTEM_PROMPT
             )
 
-            # Convert str output into JSON.
-            sentiment_data = json.loads(user_sentiment)
+            #print(f"LLM Raw Output: {user_sentiment}")
 
-            ### okay -> print(sentiment_data)
+            try:
 
-            if sentiment_data:
-                # Insert model output into graph database. 
-                insert_review(sentiment_data)
+                # Convert str output into JSON.
+                sentiment_data = json.loads(user_sentiment)
+
+                if sentiment_data is not None:
+                    # Insert model output into graph database. 
+                    insert_review(sentiment_data)
+
+                    return redirect(url_for('index'))
+
+            except json.JSONDecodeError as e:
+                print(f'JSON conversion error\n{e}')
 
     # Render webpage. 
     return render_template(
@@ -70,8 +77,16 @@ def index():
 @app.route('/gdb_data')
 def fetch_gdb_data():
 
-    # Query gdb to fetch all nodes and edges.
-    nodes, edges = fetch_data()
+    graph_view = request.args.get('user_selection')
+
+    if graph_view == 'review_aspects':
+        nodes, edges = fetch_review_aspects() # reviews and their aspects.
+
+    elif graph_view == 'review_entities':
+        nodes, edges = fetch_review_entities() # reviews and the named entities. 
+
+    else:
+        nodes, edges = fetch_data() # All nodes + relationships.
 
     # Send results as Json response. 
     return jsonify({

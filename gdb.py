@@ -60,32 +60,34 @@ def create_entity_relationship(tx, review, entity):
     query = (
         "MERGE (entity:Entity {name: $entityName}) "
         "ON CREATE SET entity.category = $entityCategory "
-        "MERGE (review:Review {timestamp: $timestamp}) "
-        "MERGE (review)-[:MENTIONS]->(entity)"    
+        "WITH entity, $review_id as review_id "
+        "MATCH (review:Review) WHERE id(review) = review_id "
+        "MERGE (review)-[:MENTIONS]->(entity)"  
     )
 
     tx.run(
         query,
         entityName=entity.get('entity'),
         entityCategory=entity.get('category'),
-        timestamp=review['timestamp']
+        review_id=review.id
     )
 
 
 def create_aspect_relationship(tx, review, aspect):
     
     query = (
-        "MERGE (aspect:Aspect {aspect: $aspectName}) "
-        "ON CREATE SET aspect.category = $aspectCategory "
-        "MERGE (review:Review {timestamp: $timestamp}) "
-        "MERGE (review)-[:HAS_ASPECT]->(aspect)"    
+        "MERGE (a:Aspect {aspect: $aspectName}) "
+        "ON CREATE SET a.category = $aspectCategory "
+        "WITH a, $review_id AS review_id "
+        "MATCH (r:Review) WHERE id(r) = review_id "
+        "MERGE (r)-[:HAS_ASPECT]->(a)"
     )
 
     tx.run(
         query,
         aspectName=aspect.get('aspect'),
         aspectCategory=aspect.get('category'),
-        timestamp=review['timestamp']
+        review_id=review.id
     )
 
 
@@ -99,37 +101,40 @@ def fetch_data():
     with gdb_driver.session() as session:
 
         query = (
-            "MATCH (review:Review) "
-            "OPTIONAL MATCH (review)-[r]->(related) "
-            "RETURN review, r, related "
-            "LIMIT 30 "
+            "MATCH p=()-[]->() RETURN p LIMIT 25"
         )
 
         results = session.run(query)
 
         for record in results:
 
-            review_node = record['review']
+            path = record['p']
 
-            if review_node.id not in nodes:
+            for node in path.nodes:
 
-                nodes[review_node.id] = {
+                node_id = str(node.id)
 
-                    'id' : review_node.id,
-                    'label' : review_node.get('review', 'Review' + str(review_node.id)),
-                    'sentiment':  review_node.get('sentiment', 'Positive'), ## Think here.
-                    'group' : 'review'
-                }
+                if node_id not in nodes:
 
-            relationship = record.get('r')
-            related_node = record.get('related')
+                    labels = list(node.labels)
 
-            if relationship and related_node:
+                    group = labels[0] if labels else 'Node'
+
+                    nodes[node_id] = {
+                        'id' : node_id,
+                        'label' : node.get('review', node.get('aspect', node.get('name', group + node_id))),
+                        'sentiment':  node.get('sentiment'),
+                        'group' : group,
+                        'title' : str(dict(node))
+                    }
+
+            for relation in path.relationships:
 
                 edges.append({
-                    'from': review_node.id,
-                    'to' : related_node.id,
-                    'label' : relationship.type
+                    'from': str(relation.start_node.id),
+                    'to' : str(relation.end_node.id),
+                    'label' : relation.type,
+                    'title': str(dict(relation))
                 })
 
     return nodes, edges 
@@ -158,6 +163,112 @@ def fetch_recent_reviews(no_of_reviews):
         ]
 
     return recent_reviews
+
+
+def fetch_review_aspects(limit=25):
+
+    with gdb_driver.session() as session:
+
+        query = (
+            "MATCH (r:Review)-[has:HAS_ASPECT]->(a:Aspect) "
+            "RETURN r AS review_node, r.sentiment AS review_sentiment, has AS aspect_relationship, a AS aspect_node "
+            f"LIMIT {limit} "
+        )
+
+        results = session.run(query)
+
+        nodes = {}
+        edges = []
+
+        for record in results:
+
+            review = record['review_node']
+            aspect = record['aspect_node']
+            relationship = record['aspect_relationship']
+
+            review_id = str(review.id)
+            aspect_id = str(aspect.id)
+
+            review_sentiment = str(record['review_sentiment'])
+
+            if review_id not in nodes:
+
+                nodes[review_id] = {
+                    'id': review_id,
+                    'label': review.get('review', 'Sentiment: ' + review_sentiment),
+                    'sentiment': review_sentiment,
+                    'group': 'Review'
+                }
+
+            if aspect_id not in nodes:
+
+                nodes[aspect_id] = {
+                    'id': aspect_id,
+                    'label': aspect.get('aspect', 'Aspect' + aspect_id),
+                    'group': 'Aspect'
+                }
+
+            edges.append({
+                'from': review_id,
+                'to': aspect_id,
+                'label': relationship.type,
+                'title': str(dict(relationship))
+            })
+    
+        return nodes, edges
+    
+
+def fetch_review_entities(limit=25):
+
+    with gdb_driver.session() as session:
+
+        query = (
+            "MATCH (r:Review)-[mention:MENTIONS]->(entity:Entity) "
+            "RETURN r AS review_node, r.sentiment AS review_sentiment, mention AS entity_relationship, entity AS entity_node "
+            f"LIMIT {limit} "
+        )
+
+        results = session.run(query)
+
+        nodes = {}
+        edges = []
+
+        for record in results:
+
+            review = record['review_node']
+            entity = record['entity_node']
+            relationship = record['entity_relationship']
+
+            review_id = str(review.id)
+            entity_id = str(entity.id)
+
+            review_sentiment = str(record['review_sentiment'])
+
+            if review_id not in nodes:
+
+                nodes[review_id] = {
+                    'id': review_id,
+                    'label': review.get('review', 'Sentiment: ' + review_sentiment),
+                    'sentiment': review_sentiment,
+                    'group': 'Review'
+                }
+
+            if entity_id not in nodes:
+
+                nodes[entity_id] = {
+                    'id': entity_id,
+                    'label': f"category: {entity.get('category')} \nentity: {entity.get('name')}",
+                    'group': 'Aspect'
+                }
+
+            edges.append({
+                'from': review_id,
+                'to': entity_id,
+                'label': relationship.type,
+                'title': str(dict(relationship))
+            })
+    
+        return nodes, edges
 
 
 def reformat_neo4j_timestamps(neo4j_timestamp):
