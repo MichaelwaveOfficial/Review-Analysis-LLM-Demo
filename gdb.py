@@ -101,7 +101,7 @@ def fetch_data():
     with gdb_driver.session() as session:
 
         query = (
-            "MATCH p=()-[]->() RETURN p LIMIT 25"
+            "MATCH p=()-[]->() RETURN p "
         )
 
         results = session.run(query)
