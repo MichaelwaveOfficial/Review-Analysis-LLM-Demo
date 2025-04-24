@@ -1,28 +1,23 @@
-🌟-Review-Analysis-LLM-Idea.
+🌟-Review-Analysis-LLM-Demo
 
-Initiative to seamlessly integrate language models into an accessible interface, enabling users
-to effectively ingest, process and analyse their clientels anecdotetes, querying them accordingly to suit
-their requirements.
+Hacked together minimum viable product intergrating language models into an interface, mimicking a business support system for organisations looking to 
+efficiently tackle incident support management and query their clients anecdotes accordingly. 
 
-## 📖 Table of Contents
+The model is able to ingest written reviews, extracting sentiments and entities, comprising these reviews, modelling the relationships to highlight commonalities between them,
+allowing or us to quickly identify how people feel about a hypothetical product / service for better or for worse. 
 
----
-1. [Flowcharts](#-Flowcharts)
-2. [Features](#-Features)
-3. [Prerequisites](#-Prerequisites)
+-> Write Review -> LLM Ingests Review -> Return Structured Output -> Insert Into Graph DB.
 
-## 📊 Flowcharts
-
-General Processing pipeline.
+Might expand in the future. Who knows. Idea is there.
 
 ## Features
-
  ✔️ Hosted web server.  
- ✔️ Hosted Language Model.  
- ✔️ Sentiment Analysis (Positive, Negative, Neutral).
- ✔️ Named Entity Recgonition (ORGANISATIONS, PEOPLE, LOCATIONS, SERVICE, PRODUCT, DATE, TIME, ect ect.).
+ ✔️ Hosted Language Model (Runpod).  
+ ✔️ Sentiment Analysis with prompted categories (Positive, Negative, Neutral).
+ ✔️ Named Entity Recgonition with prompted entities (ORGANISATIONS, PEOPLE, LOCATIONS, SERVICE, PRODUCT, DATE, TIME, ect ect.).
  ✔️ Graph Database Integration.
 
 ## Prerequisites:
     * Python 3.11+
     * Neo4j Database.
+    * Money for Runpod. (unless you host model locally).
