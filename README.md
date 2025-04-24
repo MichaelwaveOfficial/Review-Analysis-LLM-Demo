@@ -22,10 +22,10 @@ Might expand in the future. Who knows. Idea is there.
 ## Docs
 
 ### General Overview
-![General Overview]('./docs/general_screenshot.jpg')
+![General Overview](./docs/general_screenshot.jpg)
 
 ### Graph Overview
-![Graph Overview]('./docs/graph_db.jpg')
+![Graph Overview](./docs/graph_db.jpg)
 
 ## Prerequisites:
     * Python 3.11+
